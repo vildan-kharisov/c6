@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Калькулятор</title>
     <style>
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --calculator-bg: #ffffff;
+            --display-bg: #1a1a1a;
+            --display-text: #ffffff;
+            --button-bg: #f0f0f0;
+            --button-hover-bg: #e0e0e0;
+            --button-text: #333;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --calculator-bg: #0f3460;
+            --display-bg: #1a1a1a;
+            --display-text: #ffffff;
+            --button-bg: #1e3a5f;
+            --button-hover-bg: #2a4a7f;
+            --button-text: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -17,27 +41,55 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             padding: 20px;
+            transition: background 0.3s ease;
         }
 
         .calculator {
-            background: #ffffff;
+            background: var(--calculator-bg);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px var(--shadow-color);
             padding: 30px;
             max-width: 400px;
             width: 100%;
+            position: relative;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--button-bg);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--button-text);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-toggle:hover {
+            background: var(--button-hover-bg);
+            transform: scale(1.1);
         }
 
         .display {
-            background: #1a1a1a;
-            color: #ffffff;
+            background: var(--display-bg);
+            color: var(--display-text);
             font-size: 2.5rem;
             padding: 20px;
             text-align: right;
             border-radius: 10px;
             margin-bottom: 20px;
+            margin-top: 10px;
             min-height: 80px;
             display: flex;
             align-items: center;
@@ -53,7 +105,7 @@
         }
 
         button {
-            background: #f0f0f0;
+            background: var(--button-bg);
             border: none;
             border-radius: 10px;
             font-size: 1.5rem;
@@ -61,11 +113,11 @@
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 600;
-            color: #333;
+            color: var(--button-text);
         }
 
         button:hover {
-            background: #e0e0e0;
+            background: var(--button-hover-bg);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
@@ -84,6 +136,14 @@
             background: #5568d3;
         }
 
+        [data-theme="dark"] .operator {
+            background: #7c3aed;
+        }
+
+        [data-theme="dark"] .operator:hover {
+            background: #6d28d9;
+        }
+
         .equals {
             background: #764ba2;
             color: #ffffff;
@@ -91,6 +151,14 @@
 
         .equals:hover {
             background: #653a8a;
+        }
+
+        [data-theme="dark"] .equals {
+            background: #9333ea;
+        }
+
+        [data-theme="dark"] .equals:hover {
+            background: #7e22ce;
         }
 
         .clear {
@@ -102,6 +170,14 @@
             background: #ee5a5a;
         }
 
+        [data-theme="dark"] .clear {
+            background: #ef4444;
+        }
+
+        [data-theme="dark"] .clear:hover {
+            background: #dc2626;
+        }
+
         .zero {
             grid-column: span 2;
         }
@@ -109,6 +185,9 @@
 </head>
 <body>
     <div class="calculator">
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Переключить тему">
+            <span id="themeIcon">🌙</span>
+        </button>
         <div class="display" id="display">0</div>
         <div class="buttons">
             <button class="clear" onclick="clearDisplay()">C</button>
@@ -140,6 +219,31 @@
         let display = document.getElementById('display');
         let currentInput = '0';
         let shouldResetDisplay = false;
+
+        // Загрузка сохраненной темы
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        // Переключение темы
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        // Обновление иконки темы
+        function updateThemeIcon(theme) {
+            const themeIcon = document.getElementById('themeIcon');
+            themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+        }
+
+        // Инициализация темы при загрузке
+        loadTheme();
 
         function updateDisplay() {
             display.textContent = currentInput;
